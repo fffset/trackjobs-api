@@ -8,7 +8,7 @@ export class ApplicationsService {
   constructor(
     @InjectRepository(Application)
     private applicationsRepository: Repository<Application>,
-  ) {}
+  ) { }
 
   findAll(): Promise<Application[]> {
     return this.applicationsRepository.find({ order: { createdAt: 'DESC' } });
@@ -27,7 +27,7 @@ export class ApplicationsService {
     id: string,
     updateData: Partial<Application>,
   ): Promise<Application> {
-    await this.applicationsRepository.update(id, updateData);
+    await this.applicationsRepository.update({ id }, updateData);
     return this.findOne(id) as Promise<Application>;
   }
 
