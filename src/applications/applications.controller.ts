@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { Application } from './application.entity';
 
@@ -23,14 +31,14 @@ export class ApplicationsController {
 
   @Patch(':id')
   update(
-    id: string,
+    @Param('id') id: string,
     @Body() updateData: Partial<Application>,
   ): Promise<Application> {
     return this.applicationsService.update(id, updateData);
   }
 
   @Delete(':id')
-  remove(id: string): Promise<void> {
+  remove(@Param('id') id: string): Promise<void> {
     return this.applicationsService.remove(id);
   }
 }
