@@ -8,7 +8,7 @@ import {
 export enum ApplicationStatus {
   APPLIED = 'applied',
   INTERVIEW = 'interview',
-  OFFERED = 'offered',
+  OFFER = 'offer',
   REJECTED = 'rejected',
 }
 
