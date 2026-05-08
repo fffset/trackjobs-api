@@ -53,9 +53,9 @@ export class AuthService {
     return this.generateTokens(user.id, user.email, rememberMe);
   }
 
-  async refresh(refreshToken: string) {
+  refresh(refreshToken: string) {
     try {
-      const payload = await this.jwtService.verify(refreshToken, {
+      const payload = this.jwtService.verify(refreshToken, {
         secret: process.env.REFRESH_TOKEN_SECRET || 'refresh_secret',
       });
 
