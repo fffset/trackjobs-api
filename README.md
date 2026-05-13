@@ -88,3 +88,5 @@ API will be available at `http://localhost:8000`
 ## Deployment
 
 Deployed on [Render](https://render.com) with [Supabase](https://supabase.com) PostgreSQL.
+
+Live API: https://trackjobs-api.onrender.com
