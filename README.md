@@ -2,6 +2,12 @@
 
 A RESTful backend API for the TrackJobs application — a job application tracking system built with NestJS, TypeScript, and PostgreSQL.
 
+## Live Demo
+
+[https://trackjobs-api.onrender.com](https://trackjobs-api.onrender.com)
+
+> Service spins down after inactivity on free tier. First request may take ~30 seconds.
+
 ## Tech Stack
 
 - **Framework:** NestJS + TypeScript
@@ -44,14 +50,11 @@ npm install
 Create a `.env` file in the root directory:
 
 ```env
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_USER=postgres
-DATABASE_PASSWORD=postgres
-DATABASE_NAME=trackjobs
+DATABASE_URL=postgresql://user:password@host:5432/dbname
 JWT_SECRET=your_jwt_secret
 REFRESH_TOKEN_SECRET=your_refresh_secret
 NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
 ```
 
 ### Running Locally
@@ -69,6 +72,7 @@ API will be available at `http://localhost:8000`
 ## API Endpoints
 
 ### Auth
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | /auth/register | Register new user |
@@ -78,6 +82,7 @@ API will be available at `http://localhost:8000`
 | GET | /auth/me | Get current user |
 
 ### Applications
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | /applications | Get all applications |
@@ -88,5 +93,3 @@ API will be available at `http://localhost:8000`
 ## Deployment
 
 Deployed on [Render](https://render.com) with [Supabase](https://supabase.com) PostgreSQL.
-
-Live API: https://trackjobs-api.onrender.com
