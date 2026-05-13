@@ -12,6 +12,8 @@ import { AuthService } from './auth.service';
 import type { Response } from 'express';
 import { JwtAuthGuard } from './jwt.guard';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -31,8 +33,9 @@ export class AuthController {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax' as const,
+      secure: process.env.NODE_ENV === 'production', // production'da true
+      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax' | 'strict',
+      domain: undefined,
     };
 
     res.cookie('access_token', access_token, {
