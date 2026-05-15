@@ -12,6 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           const token = req?.cookies?.access_token as string | undefined;
           return token ?? null;
         },
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET || 'trackjobs_secret',
