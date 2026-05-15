@@ -15,16 +15,12 @@ import { AiModule } from './ai/ai.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
-        // host: configService.get('DATABASE_HOST'),
-        // port: configService.get('DATABASE_PORT'),
-        // username: configService.get('DATABASE_USER'),
-        // password: configService.get('DATABASE_PASSWORD'),
-        // database: configService.get('DATABASE_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        synchronize: configService.get('NODE_ENV') !== 'production',
+        ssl:
+          configService.get('NODE_ENV') === 'production'
+            ? { rejectUnauthorized: false }
+            : false,
       }),
       inject: [ConfigService],
     }),
