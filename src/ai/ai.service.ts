@@ -50,7 +50,11 @@ Respond with JSON only, no additional text.`,
 
     const content = message.content[0];
     if (content.type === 'text') {
-      return JSON.parse(content.text) as {
+      const cleaned = content.text
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      return JSON.parse(cleaned) as {
         score: number;
         strengths: string[];
         weaknesses: string[];
