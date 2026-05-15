@@ -33,20 +33,24 @@ export class AuthController {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // production'da true
+      secure: isProduction,
       sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax' | 'strict',
-      domain: undefined,
     };
 
     res.cookie('access_token', access_token, {
       ...cookieOptions,
-      maxAge: 15 * 60 * 1000, // 15 dakika
+      maxAge: 15 * 60 * 1000,
     });
 
     res.cookie('refresh_token', refresh_token, {
       ...cookieOptions,
-      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : undefined, // 30 gün veya session
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : undefined,
     });
+
+    // development'ta token'ı da dön
+    if (!isProduction) {
+      return { success: true, access_token };
+    }
 
     return { success: true };
   }
