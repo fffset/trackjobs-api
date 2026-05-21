@@ -14,6 +14,7 @@ A RESTful backend API for the TrackJobs application — a job application tracki
 - **Database:** PostgreSQL (Supabase)
 - **ORM:** TypeORM
 - **Auth:** JWT (httpOnly cookies) + Refresh Token
+- **AI:** Claude API (Anthropic)
 - **Containerization:** Docker Compose (local development)
 
 ## Features
@@ -24,10 +25,11 @@ A RESTful backend API for the TrackJobs application — a job application tracki
 - Kanban-style status management (Applied, Interview, Offer, Rejected)
 - Route protection with Guards
 - CORS configuration for cross-origin requests
+- **Claude AI-powered CV analysis** — compatibility scoring, strengths, weaknesses, and actionable recommendations
 
 ## Coming Soon
 
-- Claude AI integration for CV analysis and cover letter generation
+- Cover letter generation with streaming response
 
 ## Getting Started
 
@@ -55,6 +57,8 @@ JWT_SECRET=your_jwt_secret
 REFRESH_TOKEN_SECRET=your_refresh_secret
 NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
+ANTHROPIC_API_KEY=your_anthropic_api_key
+ANTHROPIC_MODEL=claude-sonnet-4-6
 ```
 
 ### Running Locally
@@ -89,6 +93,13 @@ API will be available at `http://localhost:8000`
 | POST | /applications | Create application |
 | PATCH | /applications/:id | Update application |
 | DELETE | /applications/:id | Delete application |
+
+### AI
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /ai/analyze-cv | Analyze CV against job description |
+| POST | /ai/cover-letter | Generate cover letter (streaming) |
 
 ## Deployment
 

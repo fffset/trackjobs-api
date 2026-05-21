@@ -5,6 +5,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -59,5 +60,45 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   getMe(@Req() req: Request & { user: { userId: string; email: string } }) {
     return req.user;
+  }
+
+  @Post('refresh')
+  refreshToken(
+    @Req() req: Request & { cookies: { refresh_token?: string } },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies.refresh_token;
+    if (!refreshToken) {
+      throw new UnauthorizedException('No refresh token');
+    }
+
+    const { access_token, refresh_token } =
+      this.authService.refresh(refreshToken);
+
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax' | 'strict',
+    };
+
+    res.cookie('access_token', access_token, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie('refresh_token', refresh_token, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return { success: true };
+  }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    return { success: true };
   }
 }
