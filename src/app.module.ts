@@ -5,6 +5,8 @@ import { ApplicationsModule } from './applications/applications.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { AiModule } from './ai/ai.module';
+import { LoggerModule } from './logger/logger.module';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { AiModule } from './ai/ai.module';
     UsersModule,
     AuthModule,
     AiModule,
+    LoggerModule,
   ],
+  providers: [LoggingInterceptor],
 })
 export class AppModule {}
