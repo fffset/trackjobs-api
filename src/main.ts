@@ -1,12 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import cookieParser from 'cookie-parser';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn', 'debug', 'log', 'verbose'],
+    bufferLogs: true,
   });
+
+  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   app.use(cookieParser());
 
   app.enableCors({
@@ -17,7 +20,8 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(process.env.PORT ?? 3000);
-  Logger.log(`Application running on port ${process.env.PORT ?? 3000}`);
+  app.useGlobalInterceptors(app.get(LoggingInterceptor));
+
+  await app.listen(process.env.PORT ?? 8000);
 }
 void bootstrap();
