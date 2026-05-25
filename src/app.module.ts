@@ -19,7 +19,7 @@ import { LoggerModule } from './common/logger/logger.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        entities: [__dirname + '/modules/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV') !== 'production',
         ssl:
           configService.get('NODE_ENV') === 'production'
