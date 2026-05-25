@@ -12,25 +12,40 @@ import { AuthService } from './auth.service';
 
 import type { Response } from 'express';
 import { JwtAuthGuard } from './jwt.guard';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiOperation({ summary: 'Register new user' })
+  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   @Post('register')
-  register(@Body() body: { email: string; password: string }) {
-    return this.authService.register(body.email, body.password);
+  register(@Body() body: RegisterDto) {
+    return this.authService.register(body);
   }
 
+  @ApiOperation({ summary: 'Login' })
+  @ApiResponse({ status: 200, description: 'Login successful' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @Post('login')
   async login(
-    @Body() body: { email: string; password: string; rememberMe?: boolean },
+    @Body() body: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
     const { access_token, refresh_token, rememberMe } =
-      await this.authService.login(body.email, body.password, body.rememberMe);
+      await this.authService.login(body);
 
     const cookieOptions = {
       httpOnly: true,
@@ -56,12 +71,15 @@ export class AuthController {
     return { success: true };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user' })
   @Get('me')
   @UseGuards(JwtAuthGuard)
   getMe(@Req() req: Request & { user: { userId: string; email: string } }) {
     return req.user;
   }
 
+  @ApiOperation({ summary: 'Refresh access token' })
   @Post('refresh')
   refreshToken(
     @Req() req: Request & { cookies: { refresh_token?: string } },
@@ -95,6 +113,7 @@ export class AuthController {
     return { success: true };
   }
 
+  @ApiOperation({ summary: 'Logout' })
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token');

@@ -2,17 +2,23 @@ import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { AiService } from './ai.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { AnalyzeCvDto } from './dto/analyze-cv.dto';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('AI')
+@ApiBearerAuth()
 @Controller('ai')
 @UseGuards(JwtAuthGuard)
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
+  @ApiOperation({ summary: 'Analyze CV against job description' })
   @Post('analyze-cv')
-  async analyzeCV(@Body() body: { cv: string; jobDescription: string }) {
+  async analyzeCV(@Body() body: AnalyzeCvDto) {
     return this.aiService.analyzeCV(body.cv, body.jobDescription);
   }
 
+  @ApiOperation({ summary: 'Generate cover letter (streaming)' })
   @Post('cover-letter')
   async generateCoverLetter(
     @Body() body: { cv: string; jobDescription: string },

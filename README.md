@@ -15,6 +15,8 @@ A RESTful backend API for the TrackJobs application — a job application tracki
 - **ORM:** TypeORM
 - **Auth:** JWT (httpOnly cookies) + Refresh Token
 - **AI:** Claude API (Anthropic)
+- **Logging:** Winston
+- **Documentation:** Swagger / OpenAPI
 - **Containerization:** Docker Compose (local development)
 
 ## Features
@@ -24,12 +26,39 @@ A RESTful backend API for the TrackJobs application — a job application tracki
 - Full CRUD for job applications
 - Kanban-style status management (Applied, Interview, Offer, Rejected)
 - Route protection with Guards
+- Global exception filter with standardized error responses
+- Request/response logging with Winston
+- Input validation with class-validator and DTOs
+- API documentation with Swagger UI
 - CORS configuration for cross-origin requests
 - **Claude AI-powered CV analysis** — compatibility scoring, strengths, weaknesses, and actionable recommendations
 
 ## Coming Soon
 
 - Cover letter generation with streaming response
+- Role-based access control (RBAC)
+- Database migrations
+- Unit and E2E tests
+
+## Architecture
+
+```
+src/
+├── common/
+│   ├── decorators/
+│   ├── filters/
+│   ├── guards/
+│   ├── interceptors/
+│   └── logger/
+├── config/
+├── modules/
+│   ├── ai/
+│   ├── applications/
+│   ├── auth/
+│   └── users/
+├── app.module.ts
+└── main.ts
+```
 
 ## Getting Started
 
@@ -72,6 +101,10 @@ npm run start:dev
 ```
 
 API will be available at `http://localhost:8000`
+
+### API Documentation
+
+Swagger UI available at `http://localhost:8000/api/docs`
 
 ## API Endpoints
 
