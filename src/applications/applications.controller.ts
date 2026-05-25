@@ -11,6 +11,8 @@ import {
 import { ApplicationsService } from './applications.service';
 import { Application } from './application.entity';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
+import { CreateApplicationDto } from './dto/create-application.dto';
+import { UpdateApplicationDto } from './dto/update-application.dto';
 
 @Controller('applications')
 @UseGuards(JwtAuthGuard)
@@ -28,14 +30,14 @@ export class ApplicationsController {
   }
 
   @Post()
-  create(@Body() application: Partial<Application>): Promise<Application> {
-    return this.applicationsService.create(application);
+  create(@Body() createData: CreateApplicationDto): Promise<Application> {
+    return this.applicationsService.create(createData);
   }
 
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateData: Partial<Application>,
+    @Body() updateData: UpdateApplicationDto,
   ): Promise<Application> {
     return this.applicationsService.update(id, updateData);
   }
