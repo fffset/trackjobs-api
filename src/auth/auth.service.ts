@@ -2,6 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -32,25 +34,25 @@ export class AuthService {
     return { access_token, refresh_token, rememberMe };
   }
 
-  async register(email: string, password: string) {
-    const existingUser = await this.usersService.findByEmail(email);
+  async register(body: RegisterDto) {
+    const existingUser = await this.usersService.findByEmail(body.email);
     if (existingUser) {
       throw new Error('User already exists');
     }
-    const user = await this.usersService.create(email, password);
+    const user = await this.usersService.create(body.email, body.password);
     return this.generateTokens(user.id, user.email);
   }
 
-  async login(email: string, password: string, rememberMe: boolean = false) {
-    const user = await this.usersService.findByEmail(email);
+  async login(data: LoginDto) {
+    const user = await this.usersService.findByEmail(data.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(data.password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    return this.generateTokens(user.id, user.email, rememberMe);
+    return this.generateTokens(user.id, user.email, data.rememberMe);
   }
 
   refresh(refreshToken: string) {

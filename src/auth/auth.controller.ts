@@ -12,6 +12,8 @@ import { AuthService } from './auth.service';
 
 import type { Response } from 'express';
 import { JwtAuthGuard } from './jwt.guard';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -20,17 +22,17 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  register(@Body() body: { email: string; password: string }) {
-    return this.authService.register(body.email, body.password);
+  register(@Body() body: RegisterDto) {
+    return this.authService.register(body);
   }
 
   @Post('login')
   async login(
-    @Body() body: { email: string; password: string; rememberMe?: boolean },
+    @Body() body: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
     const { access_token, refresh_token, rememberMe } =
-      await this.authService.login(body.email, body.password, body.rememberMe);
+      await this.authService.login(body);
 
     const cookieOptions = {
       httpOnly: true,
