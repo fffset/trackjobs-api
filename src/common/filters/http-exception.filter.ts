@@ -15,7 +15,7 @@ import { Request, Response } from 'express';
 export class GlobalExceptionFilter implements ExceptionFilter {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-  ) {}
+  ) { }
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -32,7 +32,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         ? (exception.getResponse() as { message: string | string[] }).message
         : 'Internal server error';
 
+    const exceptionResponse = exception instanceof HttpException
+      ? exception.getResponse()
+      : null;
+
+    const errorCode = exceptionResponse && typeof exceptionResponse === 'object'
+      ? (exceptionResponse as { errorCode?: string }).errorCode
+      : undefined;
+
     const errorResponse = {
+      errorCode,
       statusCode: status,
       message,
       path: request.url,
