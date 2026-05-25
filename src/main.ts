@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import cookieParser from 'cookie-parser';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -21,6 +22,7 @@ async function bootstrap() {
   });
 
   app.useGlobalInterceptors(app.get(LoggingInterceptor));
+  app.useGlobalFilters(app.get(GlobalExceptionFilter));
 
   await app.listen(process.env.PORT ?? 8000);
 }

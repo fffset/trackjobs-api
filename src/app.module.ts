@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { AiModule } from './ai/ai.module';
 import { LoggerModule } from './logger/logger.module';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 
 @Module({
   imports: [
@@ -32,6 +33,6 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
     AiModule,
     LoggerModule,
   ],
-  providers: [LoggingInterceptor],
+  providers: [LoggingInterceptor, GlobalExceptionFilter],
 })
 export class AppModule {}
