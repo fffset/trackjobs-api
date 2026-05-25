@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Application } from './application.entity';
 import { UpdateApplicationDto } from './dto/update-application.dto';
 import { CreateApplicationDto } from './dto/create-application.dto';
+import { ApplicationNotFoundException } from './error/application-not-found.exception';
 
 @Injectable()
 export class ApplicationsService {
@@ -16,9 +17,13 @@ export class ApplicationsService {
     return this.applicationsRepository.find({ order: { createdAt: 'DESC' } });
   }
 
-  findOne(id: string): Promise<Application | null> {
-    return this.applicationsRepository.findOneBy({ id });
+async findOne(id: string): Promise<Application> {
+  const application = await this.applicationsRepository.findOneBy({ id });
+  if (!application) {
+    throw new ApplicationNotFoundException(id);
   }
+  return application;
+}
 
   create(createData: CreateApplicationDto): Promise<Application> {
     const newApplication = this.applicationsRepository.create(createData);
