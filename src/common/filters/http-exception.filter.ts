@@ -29,7 +29,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     const message =
       exception instanceof HttpException
-        ? exception.message
+        ? (exception.getResponse() as { message: string | string[] }).message
         : 'Internal server error';
 
     const errorResponse = {
@@ -40,8 +40,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
     };
 
+    const messageStr = Array.isArray(message) ? message.join(', ') : message;
+
     this.logger.error(
-      `${request.method} ${request.url} - ${status} - ${message}`,
+      `${request.method} ${request.url} - ${status} - ${messageStr}`,
       { stack: exception instanceof Error ? exception.stack : undefined },
     );
 
