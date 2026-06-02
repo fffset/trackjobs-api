@@ -94,7 +94,6 @@ export class AuthController {
     const { access_token, refresh_token } =
       this.authService.refresh(refreshToken);
 
-    const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
       secure: isProduction,

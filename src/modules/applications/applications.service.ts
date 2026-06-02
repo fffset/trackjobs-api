@@ -17,13 +17,13 @@ export class ApplicationsService {
     return this.applicationsRepository.find({ order: { createdAt: 'DESC' } });
   }
 
-async findOne(id: string, userId: string): Promise<Application> {
-  const application = await this.applicationsRepository.findOneBy({ id, userId });
-  if (!application) {
-    throw new ApplicationNotFoundException(id);
+  async findOne(id: string, userId: string): Promise<Application> {
+    const application = await this.applicationsRepository.findOneBy({ id, userId });
+    if (!application) {
+      throw new ApplicationNotFoundException(id);
+    }
+    return application;
   }
-  return application;
-}
 
   create(createData: CreateApplicationDto, userId: string): Promise<Application> {
     const newApplication = this.applicationsRepository.create({ ...createData, userId });
@@ -44,6 +44,6 @@ async findOne(id: string, userId: string): Promise<Application> {
   }
 
   findByUser(userId: string): Promise<Application[]> {
-  return this.applicationsRepository.findBy({ userId });
-}
+    return this.applicationsRepository.findBy({ userId });
+  }
 }
