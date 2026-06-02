@@ -8,13 +8,15 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UsersService } from '../users/users.service';
+import { EmailAlreadyExistsException } from './error/email-already-exists.exception';
+import { InvalidCredentialsException } from './error/invalid-credentials.exception';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   private generateTokens(
     userId: string,
@@ -41,7 +43,7 @@ export class AuthService {
   async register(body: RegisterDto) {
     const existingUser = await this.usersService.findByEmail(body.email);
     if (existingUser) {
-      throw new ConflictException('User already exists');
+      throw new EmailAlreadyExistsException()
     }
     const user = await this.usersService.create(body.email, body.password);
     return this.generateTokens(user.id, user.email);
@@ -50,11 +52,11 @@ export class AuthService {
   async login(data: LoginDto) {
     const user = await this.usersService.findByEmail(data.email);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new InvalidCredentialsException()
     }
     const isPasswordValid = await bcrypt.compare(data.password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new InvalidCredentialsException()
     }
     return this.generateTokens(user.id, user.email, data.rememberMe);
   }

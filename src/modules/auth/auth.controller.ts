@@ -20,6 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -75,8 +76,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current user' })
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  getMe(@Req() req: Request & { user: { userId: string; email: string } }) {
-    return req.user;
+  getMe(@CurrentUser() user: { userId: string; email: string }) {
+    return user;
   }
 
   @ApiOperation({ summary: 'Refresh access token' })
@@ -93,7 +94,6 @@ export class AuthController {
     const { access_token, refresh_token } =
       this.authService.refresh(refreshToken);
 
-    const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
       secure: isProduction,
