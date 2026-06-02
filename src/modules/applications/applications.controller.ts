@@ -19,13 +19,16 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { UserRole } from '../users/user.entity';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @ApiTags('Applications')
 @ApiBearerAuth()
 @Controller('applications')
 @UseGuards(JwtAuthGuard)
 export class ApplicationsController {
-  constructor(private applicationsService: ApplicationsService) {}
+  constructor(private applicationsService: ApplicationsService) { }
 
   @ApiOperation({ summary: 'Get all applications' })
   @Get()
@@ -58,5 +61,13 @@ export class ApplicationsController {
   @Delete(':id')
   remove(@Param('id') id: string): Promise<void> {
     return this.applicationsService.remove(id);
+  }
+
+  @Get('admin/all')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Get all applications — Admin only' })
+  getAllAdmin() {
+    return this.applicationsService.findAll();
   }
 }
