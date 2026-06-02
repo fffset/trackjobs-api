@@ -18,6 +18,9 @@ export class Application {
   id!: string;
 
   @Column()
+  userId!: string;
+
+  @Column()
   company!: string;
 
   @Column()
