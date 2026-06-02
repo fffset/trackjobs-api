@@ -22,6 +22,7 @@ import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { UserRole } from '../users/user.entity';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @ApiTags('Applications')
 @ApiBearerAuth()
@@ -32,20 +33,29 @@ export class ApplicationsController {
 
   @ApiOperation({ summary: 'Get all applications' })
   @Get()
-  findAll(): Promise<Application[]> {
+  findAll(@CurrentUser() user: { userId: string; email: string; role: UserRole }): Promise<Application[]> {
+    return this.applicationsService.findByUser(user.userId);
+  }
+
+  // Admin only — tüm application'lar
+  @Get('all')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  findAllAdmin() {
     return this.applicationsService.findAll();
   }
 
   @Get(':id')
-  findOne(id: string): Promise<Application | null> {
-    return this.applicationsService.findOne(id);
+  findOne(id: string, @CurrentUser() user: { userId: string },
+  ): Promise<Application | null> {
+  return this.applicationsService.findOne(id, user.userId);
   }
 
   @ApiOperation({ summary: 'Create application' })
   @ApiResponse({ status: 201, description: 'Application created' })
   @Post()
-  create(@Body() createData: CreateApplicationDto): Promise<Application> {
-    return this.applicationsService.create(createData);
+  create(@Body() createData: CreateApplicationDto, @CurrentUser() user: { userId: string; email: string; role: UserRole },): Promise<Application> {
+    return this.applicationsService.create(createData, user.userId);
   }
 
   @ApiOperation({ summary: 'Update application' })
@@ -53,14 +63,16 @@ export class ApplicationsController {
   update(
     @Param('id') id: string,
     @Body() updateData: UpdateApplicationDto,
+    @CurrentUser() user: { userId: string },
+
   ): Promise<Application> {
-    return this.applicationsService.update(id, updateData);
+    return this.applicationsService.update(id, updateData, user.userId);
   }
 
   @ApiOperation({ summary: 'Delete application' })
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.applicationsService.remove(id);
+  remove(@Param('id') id: string, @CurrentUser() user: { userId: string },): Promise<void> {
+    return this.applicationsService.remove(id, user.userId);
   }
 
   @Get('admin/all')
