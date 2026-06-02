@@ -46,9 +46,8 @@ export class ApplicationsController {
   }
 
   @Get(':id')
-  findOne(id: string, @CurrentUser() user: { userId: string },
-  ): Promise<Application | null> {
-  return this.applicationsService.findOne(id, user.userId);
+  findOne(@Param('id') id: string, @CurrentUser() user: { userId: string }): Promise<Application | null> {
+    return this.applicationsService.findOne(id, user.userId);
   }
 
   @ApiOperation({ summary: 'Create application' })
@@ -75,11 +74,4 @@ export class ApplicationsController {
     return this.applicationsService.remove(id, user.userId);
   }
 
-  @Get('admin/all')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Get all applications — Admin only' })
-  getAllAdmin() {
-    return this.applicationsService.findAll();
-  }
 }
