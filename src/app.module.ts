@@ -9,7 +9,6 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AiModule } from './modules/ai/ai.module';
 import { LoggerModule } from './common/logger/logger.module';
-import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -35,6 +34,6 @@ import { RolesGuard } from './common/guards/roles.guard';
     AiModule,
     LoggerModule,
   ],
-  providers: [LoggingInterceptor, GlobalExceptionFilter,RolesGuard],
+  providers: [LoggingInterceptor, GlobalExceptionFilter],
 })
 export class AppModule {}
