@@ -2,7 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 export enum ApplicationStatus {
@@ -17,6 +19,7 @@ export class Application {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Index()
   @Column()
   userId!: string;
 
@@ -41,4 +44,7 @@ export class Application {
 
   @CreateDateColumn()
   createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 }
