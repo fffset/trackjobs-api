@@ -2,111 +2,86 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { createTestApp } from './helpers/app.helper';
 
-describe('Auth (e2e)', () => {
+const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
+
+describe('Ai (e2e)', () => {
   let app: INestApplication;
+  let token: string;
 
   beforeAll(async () => {
     app = await createTestApp();
+
+    const email = `ai-${Date.now()}@test.com`;
+    const res = await request(app.getHttpServer())
+      .post('/api/v1/auth/register')
+      .send({ email, password: '123456' });
+    token = res.body.access_token;
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  describe('POST /api/v1/auth/register', () => {
-    it('should register a new user', async () => {
+  describe('POST /api/v1/ai/analyze-cv', () => {
+    it('should return 401 without token', async () => {
       const res = await request(app.getHttpServer())
-        .post('/api/v1/auth/register')
-        .send({
-          email: `test-${Date.now()}@test.com`,
-          password: '123456',
-        });
+        .post('/api/v1/ai/analyze-cv')
+        .send({ cv: 'some cv text here', jobDescription: 'some job description here' });
 
-      expect(res.status).toBe(201);
-      expect(res.body).toHaveProperty('access_token');
-      expect(res.body).toHaveProperty('refresh_token');
+      expect(res.status).toBe(401);
     });
 
-    it('should return 400 if email is invalid', async () => {
+    it('should return 400 if cv is too short', async () => {
       const res = await request(app.getHttpServer())
-        .post('/api/v1/auth/register')
-        .send({
-          email: 'invalid-email',
-          password: '123456',
-        });
+        .post('/api/v1/ai/analyze-cv')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ cv: 'short', jobDescription: 'some job description here' });
 
       expect(res.status).toBe(400);
     });
 
-    it('should return 409 if email already exists', async () => {
-      const email = `duplicate-${Date.now()}@test.com`;
-
-      await request(app.getHttpServer())
-        .post('/api/v1/auth/register')
-        .send({ email, password: '123456' });
+    it('should return analysis with valid input', async () => {
+      if (!hasApiKey) return;
 
       const res = await request(app.getHttpServer())
-        .post('/api/v1/auth/register')
-        .send({ email, password: '123456' });
-
-      expect(res.status).toBe(409);
-      expect(res.body.errorCode).toBe('AUTH_002');
-    });
-  });
-
-  describe('POST /api/v1/auth/login', () => {
-    it('should login successfully', async () => {
-      const email = `login-${Date.now()}@test.com`;
-
-      await request(app.getHttpServer())
-        .post('/api/v1/auth/register')
-        .send({ email, password: '123456' });
-
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/auth/login')
-        .send({ email, password: '123456' });
+        .post('/api/v1/ai/analyze-cv')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          cv: 'Experienced backend developer with 5 years of Node.js and TypeScript experience.',
+          jobDescription: 'We are looking for a backend engineer with Node.js experience.',
+        });
 
       expect(res.status).toBe(201);
-      expect(res.body).toHaveProperty('success', true);
-    });
-
-    it('should return 401 with invalid credentials', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/auth/login')
-        .send({ email: 'wrong@test.com', password: 'wrongpassword' });
-
-      expect(res.status).toBe(401);
-      expect(res.body.errorCode).toBe('AUTH_001');
+      expect(res.body).toHaveProperty('score');
+      expect(res.body).toHaveProperty('strengths');
+      expect(res.body).toHaveProperty('weaknesses');
+      expect(res.body).toHaveProperty('recommendations');
     });
   });
 
-  describe('GET /api/v1/auth/me', () => {
+  describe('POST /api/v1/ai/cover-letter', () => {
     it('should return 401 without token', async () => {
       const res = await request(app.getHttpServer())
-        .get('/api/v1/auth/me');
+        .post('/api/v1/ai/cover-letter')
+        .send({ cv: 'some cv text here', jobDescription: 'some job description here' });
 
       expect(res.status).toBe(401);
     });
 
-    it('should return current user with valid token', async () => {
-      const email = `me-${Date.now()}@test.com`;
-
-      await request(app.getHttpServer())
-        .post('/api/v1/auth/register')
-        .send({ email, password: '123456' });
-
-      const loginRes = await request(app.getHttpServer())
-        .post('/api/v1/auth/login')
-        .send({ email, password: '123456' });
-
-      const token = loginRes.body.access_token;
+    it('should stream a cover letter with valid input', async () => {
+      if (!hasApiKey) return;
 
       const res = await request(app.getHttpServer())
-        .get('/api/v1/auth/me')
-        .set('Authorization', `Bearer ${token}`);
+        .post('/api/v1/ai/cover-letter')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          cv: 'Experienced backend developer with 5 years of Node.js and TypeScript experience.',
+          jobDescription: 'We are looking for a backend engineer with Node.js experience.',
+        });
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('email', email);
+      expect(res.headers['content-type']).toMatch('text/event-stream');
+      expect(res.text).toContain('[DONE]');
     });
   });
 });
