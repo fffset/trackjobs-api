@@ -40,6 +40,7 @@ export class ApplicationsService {
   }
 
   async remove(id: string, userId: string): Promise<void> {
+    await this.findOne(id, userId);
     await this.applicationsRepository.delete({ id, userId });
   }
 
