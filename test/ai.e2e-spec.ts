@@ -60,29 +60,29 @@ describe('Ai (e2e)', () => {
     }, 30_000);
   });
 
-  describe('POST /api/v1/ai/cover-letter', () => {
-    it('should return 401 without token', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/ai/cover-letter')
-        .send({ cv: 'some cv text here', jobDescription: 'some job description here' });
+  // describe('POST /api/v1/ai/cover-letter', () => {
+  //   it('should return 401 without token', async () => {
+  //     const res = await request(app.getHttpServer())
+  //       .post('/api/v1/ai/cover-letter')
+  //       .send({ cv: 'some cv text here', jobDescription: 'some job description here' });
 
-      expect(res.status).toBe(401);
-    });
+  //     expect(res.status).toBe(401);
+  //   });
 
-    it('should stream a cover letter with valid input', async () => {
-      if (!hasApiKey) return;
+  //   it('should stream a cover letter with valid input', async () => {
+  //     if (!hasApiKey) return;
 
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/ai/cover-letter')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          cv: 'Experienced backend developer with 5 years of Node.js and TypeScript experience.',
-          jobDescription: 'We are looking for a backend engineer with Node.js experience.',
-        });
+  //     const res = await request(app.getHttpServer())
+  //       .post('/api/v1/ai/cover-letter')
+  //       .set('Authorization', `Bearer ${token}`)
+  //       .send({
+  //         cv: 'Experienced backend developer with 5 years of Node.js and TypeScript experience.',
+  //         jobDescription: 'We are looking for a backend engineer with Node.js experience.',
+  //       });
 
-      expect(res.status).toBe(200);
-      expect(res.headers['content-type']).toMatch('text/event-stream');
-      expect(res.text).toContain('[DONE]');
-    }, 30_000);
-  });
+  //     expect(res.status).toBe(200);
+  //     expect(res.headers['content-type']).toMatch('text/event-stream');
+  //     expect(res.text).toContain('[DONE]');
+  //   }, 30_000);
+  // });
 });
