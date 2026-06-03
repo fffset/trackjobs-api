@@ -26,6 +26,7 @@ const mockUsersService = {
 
 const mockJwtService = {
   sign: jest.fn().mockReturnValue('mock-token'),
+  verify: jest.fn(),
 };
 
 describe('AuthService', () => {
@@ -94,6 +95,23 @@ describe('AuthService', () => {
 
       expect(result).toHaveProperty('access_token');
       expect(result).toHaveProperty('refresh_token');
+    });
+  });
+
+  describe('refresh', () => {
+    it('should return new tokens for a valid refresh token', () => {
+      mockJwtService.verify.mockReturnValue({ sub: 'user-123', email: 'test@test.com' });
+
+      const result = service.refresh('valid-refresh-token');
+
+      expect(result).toHaveProperty('access_token');
+      expect(result).toHaveProperty('refresh_token');
+    });
+
+    it('should throw UnauthorizedException for an invalid refresh token', () => {
+      mockJwtService.verify.mockImplementation(() => { throw new Error('invalid'); });
+
+      expect(() => service.refresh('bad-token')).toThrow('Invalid refresh token');
     });
   });
 });

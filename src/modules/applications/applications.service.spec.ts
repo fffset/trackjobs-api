@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ApplicationsService } from './applications.service';
 import { Application } from './application.entity';
 import { ApplicationNotFoundException } from './error/application-not-found.exception';
@@ -28,7 +27,6 @@ const mockRepository = {
 
 describe('ApplicationsService', () => {
   let service: ApplicationsService;
-  let repository: Repository<Application>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -42,7 +40,6 @@ describe('ApplicationsService', () => {
     }).compile();
 
     service = module.get<ApplicationsService>(ApplicationsService);
-    repository = module.get<Repository<Application>>(getRepositoryToken(Application));
   });
 
   afterEach(() => {
@@ -106,6 +103,28 @@ describe('ApplicationsService', () => {
         position: 'Backend Developer',
         userId: 'user-123',
       });
+    });
+  });
+
+  describe('update', () => {
+    it('should update and return the application', async () => {
+      const updated = { ...mockApplication, company: 'Meta' };
+      mockRepository.update.mockResolvedValue({ affected: 1 });
+      mockRepository.findOneBy.mockResolvedValue(updated);
+
+      const result = await service.update('123', { company: 'Meta' }, 'user-123');
+
+      expect(result).toEqual(updated);
+      expect(mockRepository.update).toHaveBeenCalledWith({ id: '123', userId: 'user-123' }, { company: 'Meta' });
+    });
+
+    it('should throw ApplicationNotFoundException if not found after update', async () => {
+      mockRepository.update.mockResolvedValue({ affected: 0 });
+      mockRepository.findOneBy.mockResolvedValue(null);
+
+      await expect(service.update('999', { company: 'Meta' }, 'user-123')).rejects.toThrow(
+        ApplicationNotFoundException,
+      );
     });
   });
 
