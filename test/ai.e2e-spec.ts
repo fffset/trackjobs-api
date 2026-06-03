@@ -43,6 +43,7 @@ describe('Ai (e2e)', () => {
     it('should return analysis with valid input', async () => {
       if (!hasApiKey) return;
 
+
       const res = await request(app.getHttpServer())
         .post('/api/v1/ai/analyze-cv')
         .set('Authorization', `Bearer ${token}`)
@@ -56,7 +57,7 @@ describe('Ai (e2e)', () => {
       expect(res.body).toHaveProperty('strengths');
       expect(res.body).toHaveProperty('weaknesses');
       expect(res.body).toHaveProperty('recommendations');
-    });
+    }, 30_000);
   });
 
   describe('POST /api/v1/ai/cover-letter', () => {
@@ -82,6 +83,6 @@ describe('Ai (e2e)', () => {
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toMatch('text/event-stream');
       expect(res.text).toContain('[DONE]');
-    });
+    }, 30_000);
   });
 });
